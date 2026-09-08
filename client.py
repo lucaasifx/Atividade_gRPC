@@ -30,16 +30,6 @@ tasks_mock = [
     model_pb2.Task(id=25, title="Simular concorrência", description="Disparar requisições simultâneas para testar o ThreadPoolExecutor",is_completed=False, date="16/09/2026")
 ]
 
-
-ip = "localhost"
-port = "32768"
-# with grpc.insecure_channel(ip + ':' + port) as channel:
-#     stub = model_pb2_grpc.APIStub(channel)
-#     for task in tasks_mock:
-#         response = stub.CreateTask(task)
-#         print(f'{response.id}')
-
-
 # vou tentar deixar o terminal pronto
 def menu():
     print(f'{"-=" * 30}')
@@ -54,20 +44,73 @@ def menu():
     """)
     print(f"{"-=" * 30}")
 
-opt = 0
 
 
+# definições da conexão
+ip = "localhost"
+port = "32768"
 
-while True:
-    menu()
-    try:
-        opt = int(input("Escolha uma opção: "))
-    except ValueError:
-        print("Valor inválido! Digite um inteiro!")
-        continue
+# ID INCREMENTAL HARDCODADO APENAS PARA TESTES (gohorse papai sao 4 da manha hihihi)
+taskId = 1
 
-    match opt:
-        case 6:
-            print("Saindo...")
-    if opt == 6:
-        break
+# uma unica conexão
+with grpc.insecure_channel(ip + ':' + port) as channel:
+    stub = model_pb2_grpc.TaskServiceStub(channel)
+    opt = 0
+    while True:
+        menu()
+        try:
+            opt = int(input("Escolha uma opção: "))
+        except ValueError:
+            print("Valor inválido! Digite um inteiro!")
+            continue
+
+        # aqui tratamos as opções
+        match opt:
+            case 1:
+                taskTitle = input("Título: ")
+                taskDescription = input("Descrição: ")
+                taskDate = input("Data: ")
+
+                new_task = model_pb2.Task(
+                    id= taskId,
+                    title = taskTitle,
+                    description = taskDescription,
+                    is_completed = False,
+                    date = taskDate
+                )
+                response = stub.CreateTask(new_task)
+                print(f"Tarefa criada com sucesso! ID: {taskId}")
+                # incrementa o id!! 
+                taskId += 1
+            case 2:
+                # deixa essa linha aqui se não o linter não entende o tipo
+                taskList: model_pb2.TaskList
+                taskList = stub.ListAllTasks(model_pb2.Void())
+                # essa tabela aqui ficou fina falatu
+                print("-" * 94)
+                print(
+                    f"{'ID':<4} | "
+                    f"{'Título':<25} | "
+                    f"{'Descrição':<25} | "
+                    f"{'Data':<12} | "
+                    f"{'Status':<14}"
+                )
+                print("-" * 94)
+                for task in taskList.tasks:
+                    # pra ficar bonitinho, sem isso fica 0 ou 1
+                    status = "Finalizada" if task.is_completed == True else "Não finalizada"
+                    # quebrado assim fica mais facil de mudar a ordem da exibição na tabela
+                    print(
+                        f"{task.id:<4} | "
+                        f"{task.title:<25} | "
+                        f"{task.description:<25} | "
+                        f"{status:<15} | "
+                        f"{task.date:<12}"
+                    )
+                print("-" * 94)
+            case 6:
+                print("Saindo...")
+
+        if opt == 6:
+            break
