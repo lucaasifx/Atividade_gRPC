@@ -1,2 +1,6 @@
 .vscode
 __pycache__
+.venv
+model_pb2.py
+model_pb2.pyi
+model_pb2_grpc.py
