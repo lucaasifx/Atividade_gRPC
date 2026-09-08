@@ -2,46 +2,29 @@ from concurrent import futures
 import grpc
 import model_pb2
 import model_pb2_grpc
+import sistask_db
 
 # ---------------------------------------------------------------------------------------
 
 ip = "localhost"
 port = "32768"
-lista = model_pb2.TaskList()
 
 # Definição dos metodos
 class TaskService(model_pb2_grpc.TaskServiceServicer):
     def CreateTask(self, request: model_pb2.Task, context) -> model_pb2.TaskID:
-        lista.tasks.append(request)
-        print('Tarefa adicionada com sucesso!')
-        print(f"""
-            ID = {request.id}
-            Tittle= {request.title}
-            Description = {request.description}
-            Status = {request.is_completed}
-            Date = {request.date}
-            Responsible = {request.responsible}
-        """)
-        return model_pb2.TaskID(id = request.id)
+        return sistask_db.Task.create(request.title, request.description, request.responsible, request.date)
 
     def ListAllTasks(self, request: model_pb2.Void, context) -> model_pb2.TaskList:
-        return lista
+        return sistask_db.Task.get_all_tasks()
 
     def UpdateTask(self, request: model_pb2.Task, context) -> model_pb2.TaskID:
-        # Implementar
-        return model_pb2.TaskID(id = request.id)
+        return sistask_db.Task.update(request)
 
-    def DeleteTask(self, request: model_pb2.TaskID, context) -> model_pb2.TaskID:
-        # sem tratamento de erros por enquanto
-        for task in lista.tasks:
-            if task.id == request.id:
-                lista.tasks.remove(task)
-                break
-        return model_pb2.TaskID(id = request.id)
+    def DeleteTask(self, request: model_pb2.TaskID, context) -> model_pb2.Void:
+        return sistask_db.Task.delete(request)
 
     def FinishTask(self, request: model_pb2.TaskID, context) -> model_pb2.TaskID:
-        # Implementar
-        return model_pb2.TaskID(id = request.id)
+        return sistask_db.Task.finish_task(request)
 
 # Configurações do servidor
 def server():
