@@ -1,23 +1,34 @@
 syntax = "proto3";
+
 message Void {}
 message Task {
   int32 id = 1;
   string title = 2;
   string description = 3;
-  bool status = 4;
-  string data = 5;
-  string responsible = 6;
+  bool is_completed = 4;
+  string date = 5;
 }
+
+message UpdatedTask {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  bool is_completed = 4;
+  string date = 5;
+}
+
 message TaskID {
   int32 id = 1;
 }
+
 message TaskList {
-  repeated Task list = 1;
+  repeated Task tasks = 1;
 }
-service API {
-  rpc AddTask (Task) returns (Task);
-  rpc ListAll (Void) returns (TaskList);
-  rpc UpdateTask (TaskID) returns (Task);
-  rpc DeleteTask (TaskID) returns (Task);
+
+service TaskService {
+  rpc CreateTask (Task) returns (Task);
+  rpc ListAllTasks (Void) returns (TaskList);
+  rpc UpdateTask (UpdatedTask) returns (Task);
+  rpc DeleteTask (TaskID) returns (Void);
   rpc FinishTask (TaskID) returns (Task);
 }
