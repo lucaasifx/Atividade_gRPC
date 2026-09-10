@@ -78,23 +78,33 @@ with grpc.insecure_channel(ip + ':' + port) as channel:
                     )
                 print("-" * 136)
             case 3:
-                taskID = input("ID: ")
-                taskTitle = input("Título: ")
-                taskDescription = input("Descrição: ")
-                taskDate = input("Data: ")
-                taskResponsible = input("Responsável: ")
+                taskID = input("ID: ").strip()
 
-                updated_task = model_pb2.Task(
-                    id= taskID,
-                    title = taskTitle,
-                    description = taskDescription,
-                    is_completed = False,
-                    date = taskDate,
-                    responsible = taskResponsible
-                )
+                # Só modifica se encontrar a tarefa
+                try:
+                    searchedTask = stub.GetTask(model_pb2.TaskID(id=taskID))
+                    taskTitle = input("Título: ")
+                    taskDescription = input("Descrição: ")
+                    taskDate = input("Data: ")
+                    taskResponsible = input("Responsável: ")
 
-                response = stub.UpdateTask(updated_task)
-                print(f"Tarefa atualizada com sucesso! ID: {response.id}")
+                    updated_task = model_pb2.Task(
+                        id= taskID,
+                        title = taskTitle,
+                        description = taskDescription,
+                        is_completed = False,
+                        date = taskDate,
+                        responsible = taskResponsible
+                    )
+
+                    response = stub.UpdateTask(updated_task)
+                    print(f"Tarefa atualizada com sucesso! ID: {response.id}")
+                except grpc.RpcError as e:
+                    if e.code() == grpc.StatusCode.NOT_FOUND:
+                        print(f"Tarefa {taskID} não encontrada.")
+                    else:
+                        print(f"Erro no servidor! {e.details()}")
+                        
             case 4:
                 taskID = input("ID: ")
                 response = stub.DeleteTask(model_pb2.TaskID(id = taskID))
