@@ -7,8 +7,8 @@ ip = input("Digite o host/IP do servidor [Enter para 'server']: ").strip() or "s
 port = "32768"
 
 def menu():
-    print(f'{"-=" * 30}')
-    print(f"{" The best gRPC Todo App ":=^60}")
+    print(f'{"-=" * 40}')
+    print(f"{" The best gRPC Todo App of the world (seriously) ":=^80}")
     print("""
         [1] Adicionar Tarefa
         [2] Listar Tarefas
@@ -17,7 +17,7 @@ def menu():
         [5] Concluir Tarefa
         [0] Sair
     """)
-    print(f"{"-=" * 30}")
+    print(f"{"-=" * 40}")
 
 # Uma única conexão
 with grpc.insecure_channel(ip + ':' + port) as channel:
