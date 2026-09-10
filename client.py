@@ -3,7 +3,7 @@ import model_pb2
 import model_pb2_grpc
 
 # Definições da conexão
-ip = "localhost"
+ip = input("Digite o host/IP do servidor [Enter para 'server']: ").strip() or "server"
 port = "32768"
 
 def menu():
@@ -54,29 +54,29 @@ with grpc.insecure_channel(ip + ':' + port) as channel:
                 taskList: model_pb2.TaskList
                 taskList = stub.ListAllTasks(model_pb2.Void())
                 # essa tabela aqui ficou fina falatu
-                print("-" * 94)
+                print("-" * 136)
                 print(
-                    f"{'ID':<4} | "
+                    f"{'ID':<36} | "
                     f"{'Título':<25} | "
                     f"{'Descrição':<25} | "
-                    f"{'Data':<12} | "
+                    f"{'Data':<10} | "
                     f"{'Status':<14} | "
                     f"{'Responsável':<25}"
                 )
-                print("-" * 94)
+                print("-" * 136)
                 for task in taskList.tasks:
                     # pra ficar bonitinho, sem isso fica 0 ou 1
                     status = "Finalizada" if task.is_completed == True else "Não finalizada"
                     # quebrado assim fica mais facil de mudar a ordem da exibição na tabela
                     print(
-                        f"{task.id:<4} | "
+                        f"{task.id:<36} | "
                         f"{task.title:<25} | "
                         f"{task.description:<25} | "
-                        f"{task.date:<12} | "
+                        f"{task.date:<10} | "
                         f"{status:<14} | "
                         f"{task.responsible:<25}"
                     )
-                print("-" * 94)
+                print("-" * 136)
             case 3:
                 taskID = input("ID: ")
                 taskTitle = input("Título: ")
@@ -98,7 +98,6 @@ with grpc.insecure_channel(ip + ':' + port) as channel:
             case 4:
                 taskID = input("ID: ")
                 response = stub.DeleteTask(model_pb2.TaskID(id = taskID))
-                print(f"Tarefa deletada com sucesso! ID: {response.id}")
             case 5:
                 taskID = input("ID: ")
                 response = stub.FinishTask(model_pb2.TaskID(id = taskID))

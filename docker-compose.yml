@@ -1,0 +1,20 @@
+services:
+  # Servidor gRPC
+  server:
+    build: .
+    ports:
+      - "32768:32768" # porta do host : porta do container
+
+  # Primeiro cliente
+  client1:
+    build: .
+    command: python client.py
+    stdin_open: true # Permite receber entrada pelo teclado
+    tty: true        # Habilita suporte a terminal interativo
+
+  # Segundo cliente (para demonstrarmos clientes concorrentes com IPs distintos)
+  client2:
+    build: .
+    command: python client.py
+    stdin_open: true
+    tty: true

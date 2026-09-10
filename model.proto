@@ -19,6 +19,6 @@ service TaskService {
   rpc CreateTask (Task) returns (TaskID);
   rpc ListAllTasks (Void) returns (TaskList);
   rpc UpdateTask (Task) returns (TaskID);
-  rpc DeleteTask (TaskID) returns (TaskID);
+  rpc DeleteTask (TaskID) returns (Void);
   rpc FinishTask (TaskID) returns (TaskID);
 }
