@@ -39,11 +39,23 @@ class TaskService(model_pb2_grpc.TaskServiceServicer):
         return result
     def DeleteTask(self, request: model_pb2.TaskID, context) -> model_pb2.Void:
         print(f"[{context.peer()}] DeleteTask: {request.id}")
-        return sistask_db.Task.delete(request)
+        result = sistask_db.Task.delete(request)
+        if not result:
+            context.abort(
+                grpc.StatusCode.NOT_FOUND,
+                f"Tarefa com id {request.id} não encontrada."
+            )
+        return result
 
     def FinishTask(self, request: model_pb2.TaskID, context) -> model_pb2.TaskID:
         print(f"[{context.peer()}] FinishTask: {request.id}")
-        return sistask_db.Task.finish_task(request)
+        result = sistask_db.Task.finish_task(request)
+        if not result:
+            context.abort(
+                grpc.StatusCode.NOT_FOUND,
+                f"Tarefa com id {request.id} não encontrada."
+            )
+        return result
 
     def GetTask(self, request: model_pb2.TaskID, context: grpc.ServicerContext) -> model_pb2.Task:
         print(f"[{context.peer()}] GetTask: {request.id}")

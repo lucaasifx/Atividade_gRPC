@@ -106,12 +106,25 @@ with grpc.insecure_channel(ip + ':' + port) as channel:
                         print(f"Erro no servidor! {e.details()}")
                         
             case 4:
-                taskID = input("ID: ")
-                response = stub.DeleteTask(model_pb2.TaskID(id = taskID))
+                taskID = input("ID: ").strip()
+                try:
+                    searchedTask = stub.DeleteTask(model_pb2.TaskID(id=taskID))
+                    print("Tarefa excluída com sucesso.")
+                except grpc.RpcError as e:
+                    if e.code() == grpc.StatusCode.NOT_FOUND:
+                        print(f"Tarefa {taskID} não encontrada.")
+                    else:
+                        print(f"Erro no servidor! {e.details()}")
             case 5:
-                taskID = input("ID: ")
-                response = stub.FinishTask(model_pb2.TaskID(id = taskID))
-                print(f"Tarefa concluída! ID: {response.id}")
+                taskID = input("ID: ").strip()
+                try:
+                    searchedTask = stub.FinishTask(model_pb2.TaskID(id=taskID))
+                    print(f"Tarefa concluída! ID: {searchedTask.id}")
+                except grpc.RpcError as e:
+                    if e.code() == grpc.StatusCode.NOT_FOUND:
+                        print(f"Tarefa {taskID} não encontrada.")
+                    else:
+                        print(f"Erro no servidor! {e.details()}")
             case 0: # Tava com sono né Lucas kkkkk
                 print("Saindo...")
                 break

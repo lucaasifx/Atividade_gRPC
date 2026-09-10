@@ -97,22 +97,25 @@ class Task(Base):
             return list_tasks
 
                 
-    def delete(tid:model_pb2.TaskID) -> model_pb2.Void:
+    def delete(tid:model_pb2.TaskID) -> model_pb2.Void | None:
         with Session(ENGINE) as session:
             task = session.scalars(
                 select(Task).where(Task.id == tid.id)
             ).first()
-
+            if not task:
+                return None
             session.delete(task)
             session.commit()
 
             return model_pb2.Void()
 
-    def finish_task(tid:model_pb2.TaskID) -> model_pb2.TaskID:
+    def finish_task(tid:model_pb2.TaskID) -> model_pb2.TaskID | None:
         with Session(ENGINE) as session:
             task = session.scalars(
                 select(Task).where(Task.id == tid.id)
             ).first()
+            if not task:
+                return None
 
             task.is_completed = True
             session.commit()
