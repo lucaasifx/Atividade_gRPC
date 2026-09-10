@@ -10,6 +10,10 @@ COPY . /app
 # Instala as dependências listadas no requirements.txt
 RUN pip install -r requirements.txt
 
+# compila o arquivo .model para gerar os stubs da aplicacao
+RUN python -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=. --pyi_out=. ./model.proto
+
+
 # Porta usada pelo serviço gRPC
 EXPOSE 32768
 
