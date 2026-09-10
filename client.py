@@ -3,7 +3,7 @@ import model_pb2
 import model_pb2_grpc
 
 # Definições da conexão
-ip = "localhost"
+ip = input("Digite o host/IP do servidor [Enter para 'server']: ").strip() or "server"
 port = "32768"
 
 def menu():
