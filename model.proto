@@ -21,4 +21,5 @@ service TaskService {
   rpc UpdateTask (Task) returns (TaskID);
   rpc DeleteTask (TaskID) returns (Void);
   rpc FinishTask (TaskID) returns (TaskID);
+  rpc GetTask (TaskID) returns (Task);
 }

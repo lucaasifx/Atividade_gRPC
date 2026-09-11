@@ -7,8 +7,8 @@ ip = input("Digite o host/IP do servidor [Enter para 'server']: ").strip() or "s
 port = "32768"
 
 def menu():
-    print(f'{"-=" * 30}')
-    print(f"{" The best gRPC Todo App ":=^60}")
+    print(f'{"-=" * 40}')
+    print(f"{" The best gRPC Todo App of the world (seriously) ":=^80}")
     print("""
         [1] Adicionar Tarefa
         [2] Listar Tarefas
@@ -17,7 +17,7 @@ def menu():
         [5] Concluir Tarefa
         [0] Sair
     """)
-    print(f"{"-=" * 30}")
+    print(f"{"-=" * 40}")
 
 # Uma única conexão
 with grpc.insecure_channel(ip + ':' + port) as channel:
@@ -78,30 +78,53 @@ with grpc.insecure_channel(ip + ':' + port) as channel:
                     )
                 print("-" * 136)
             case 3:
-                taskID = input("ID: ")
-                taskTitle = input("Título: ")
-                taskDescription = input("Descrição: ")
-                taskDate = input("Data: ")
-                taskResponsible = input("Responsável: ")
+                taskID = input("ID: ").strip()
 
-                updated_task = model_pb2.Task(
-                    id= taskID,
-                    title = taskTitle,
-                    description = taskDescription,
-                    is_completed = False,
-                    date = taskDate,
-                    responsible = taskResponsible
-                )
+                # Só modifica se encontrar a tarefa
+                try:
+                    searchedTask = stub.GetTask(model_pb2.TaskID(id=taskID))
+                    taskTitle = input("Título: ")
+                    taskDescription = input("Descrição: ")
+                    taskDate = input("Data: ")
+                    taskResponsible = input("Responsável: ")
 
-                response = stub.UpdateTask(updated_task)
-                print(f"Tarefa atualizada com sucesso! ID: {response.id}")
+                    updated_task = model_pb2.Task(
+                        id= taskID,
+                        title = taskTitle,
+                        description = taskDescription,
+                        is_completed = False,
+                        date = taskDate,
+                        responsible = taskResponsible
+                    )
+
+                    response = stub.UpdateTask(updated_task)
+                    print(f"Tarefa atualizada com sucesso! ID: {response.id}")
+                except grpc.RpcError as e:
+                    if e.code() == grpc.StatusCode.NOT_FOUND:
+                        print(f"Tarefa {taskID} não encontrada.")
+                    else:
+                        print(f"Erro no servidor! {e.details()}")
+                        
             case 4:
-                taskID = input("ID: ")
-                response = stub.DeleteTask(model_pb2.TaskID(id = taskID))
+                taskID = input("ID: ").strip()
+                try:
+                    searchedTask = stub.DeleteTask(model_pb2.TaskID(id=taskID))
+                    print("Tarefa excluída com sucesso.")
+                except grpc.RpcError as e:
+                    if e.code() == grpc.StatusCode.NOT_FOUND:
+                        print(f"Tarefa {taskID} não encontrada.")
+                    else:
+                        print(f"Erro no servidor! {e.details()}")
             case 5:
-                taskID = input("ID: ")
-                response = stub.FinishTask(model_pb2.TaskID(id = taskID))
-                print(f"Tarefa concluída! ID: {response.id}")
+                taskID = input("ID: ").strip()
+                try:
+                    searchedTask = stub.FinishTask(model_pb2.TaskID(id=taskID))
+                    print(f"Tarefa concluída! ID: {searchedTask.id}")
+                except grpc.RpcError as e:
+                    if e.code() == grpc.StatusCode.NOT_FOUND:
+                        print(f"Tarefa {taskID} não encontrada.")
+                    else:
+                        print(f"Erro no servidor! {e.details()}")
             case 0: # Tava com sono né Lucas kkkkk
                 print("Saindo...")
                 break

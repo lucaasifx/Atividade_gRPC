@@ -28,17 +28,45 @@ class TaskService(model_pb2_grpc.TaskServiceServicer):
         print(f"[{context.peer()}] ListAllTasks")
         return sistask_db.Task.get_all_tasks()
 
-    def UpdateTask(self, request: model_pb2.Task, context) -> model_pb2.TaskID:
+    def UpdateTask(self, request: model_pb2.Task, context: grpc.ServicerContext) -> model_pb2.TaskID:
         print(f"[{context.peer()}] UpdateTask: {request.id}")
-        return sistask_db.Task.update(request)
-
+        result = sistask_db.Task.update(request)
+        if not result:
+            context.abort(
+                grpc.StatusCode.NOT_FOUND,
+                f"Tarefa com id {request.id} não encontrada."
+            )
+        return result
     def DeleteTask(self, request: model_pb2.TaskID, context) -> model_pb2.Void:
         print(f"[{context.peer()}] DeleteTask: {request.id}")
-        return sistask_db.Task.delete(request)
+        result = sistask_db.Task.delete(request)
+        if not result:
+            context.abort(
+                grpc.StatusCode.NOT_FOUND,
+                f"Tarefa com id {request.id} não encontrada."
+            )
+        return result
 
     def FinishTask(self, request: model_pb2.TaskID, context) -> model_pb2.TaskID:
         print(f"[{context.peer()}] FinishTask: {request.id}")
-        return sistask_db.Task.finish_task(request)
+        result = sistask_db.Task.finish_task(request)
+        if not result:
+            context.abort(
+                grpc.StatusCode.NOT_FOUND,
+                f"Tarefa com id {request.id} não encontrada."
+            )
+        return result
+
+    def GetTask(self, request: model_pb2.TaskID, context: grpc.ServicerContext) -> model_pb2.Task:
+        print(f"[{context.peer()}] GetTask: {request.id}")
+        result = sistask_db.Task.get_task(request)
+        if not result:
+            context.abort(
+                grpc.StatusCode.NOT_FOUND,
+                f"Tarefa com id {request.id} não encontrada."
+            )
+        return result
+
 
 # Configurações do servidor
 def server():
